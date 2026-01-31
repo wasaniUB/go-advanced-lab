@@ -90,3 +90,99 @@ func TestPower(t *testing.T) {
 		})
 	}
 }
+
+func TestMakeCounter(t *testing.T) {
+	tests := []struct {
+		name     string
+		start    int
+		calls    int
+		expected []int
+	}{
+		{name: "Start at 0", start: 0, calls: 5, expected: []int{1, 2, 3, 4, 5}},
+		{name: "Start at 10", start: 10, calls: 3, expected: []int{11, 12, 13}},
+		{name: "Start at -5", start: -5, calls: 4, expected: []int{-4, -3, -2, -1}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			counter := makeCounter(tt.start)
+			for i := 0; i < tt.calls; i++ {
+				got := counter()
+				if got != tt.expected[i] {
+					t.Errorf("Call %d: got %d, want %d", i+1, got, tt.expected[i])
+				}
+			}
+		})
+	}
+
+	counter1 := makeCounter(0)
+	counter2 := makeCounter(100)
+
+	if counter1() != 1 {
+		t.Errorf("counter1 first call = %d, want 1", counter1())
+	}
+	if counter2() != 101 {
+		t.Errorf("counter2 first call = %d, want 101", counter2())
+	}
+	if counter1() != 2 {
+		t.Errorf("counter1 second call = %d, want 2", counter1())
+	}
+}
+
+func TestMakeMultiplier(t *testing.T) {
+	tests := []struct {
+		name     string
+		factor   int
+		inputs   []int
+		expected []int
+	}{
+		{name: "Double", factor: 2, inputs: []int{5}, expected: []int{10}},
+		{name: "Triple", factor: 3, inputs: []int{5}, expected: []int{15}},
+		{name: "Multiply by zero", factor: 0, inputs: []int{10}, expected: []int{0}},
+		{name: "Negative factor", factor: -2, inputs: []int{4}, expected: []int{-8}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			multiplier := MakeMultiplier(tt.factor)
+			for i, input := range tt.inputs {
+				got := multiplier(input)
+				if got != tt.expected[i] {
+					t.Errorf("Input %d: got %d, want %d", input, got, tt.expected[i])
+				}
+			}
+		})
+	}
+}
+
+func TestMakeAccumulator(t *testing.T) {
+	tests := []struct {
+		name     string
+		initial  int
+		addValue int
+		subValue int
+		expected int
+	}{
+		{name: "Add then subtract", initial: 100, addValue: 50, subValue: 30, expected: 120},
+		{name: "Adding only", initial: 10, addValue: 15, subValue: 0, expected: 25},
+		{name: "Subtracting only", initial: 20, addValue: 0, subValue: 5, expected: 15},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			add, subtract, get := makeAccumulator(tt.initial)
+
+			if tt.addValue != 0 {
+				add(tt.addValue)
+			}
+			if tt.subValue != 0 {
+				subtract(tt.subValue)
+			}
+
+			got := get()
+			if got != tt.expected {
+				t.Errorf("final value = %d, want %d", got, tt.expected)
+			}
+		})
+	}
+}
