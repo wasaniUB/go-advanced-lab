@@ -316,3 +316,135 @@ func TestCompose(t *testing.T) {
 		})
 	}
 }
+
+func TestDoubleValue(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    int
+		expected int
+	}{
+		{name: "Double 5", input: 5, expected: 10},
+		{name: "Double 0", input: 0, expected: 0},
+		{name: "Double -3", input: -3, expected: -6},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := DoubleValue(tt.input)
+			if got != tt.expected {
+				t.Errorf("got %d, want %d", got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestDoublePointer(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    int
+		expected int
+	}{
+		{name: "Double 5", input: 5, expected: 10},
+		{name: "Double 0", input: 0, expected: 0},
+		{name: "Double -3", input: -3, expected: -6},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			val := tt.input
+			DoublePointer(&val)
+			if val != tt.expected {
+				t.Errorf("got %d, want %d", val, tt.expected)
+			}
+		})
+	}
+}
+
+func TestCreateOnStack(t *testing.T) {
+	tests := []struct {
+		name     string
+		expected int
+	}{
+		{name: "Returns constant value", expected: 2008},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := CreateOnStack()
+			if got != tt.expected {
+				t.Errorf("got %d, want %d", got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestCreateOnHeap(t *testing.T) {
+	tests := []struct {
+		name     string
+		expected int
+	}{
+		{name: "Returns constant value", expected: 3008},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := CreateOnHeap()
+
+			if got == nil {
+				t.Error("expected non-nil pointer")
+			}
+
+			if *got != tt.expected {
+				t.Errorf("got %d, want %d", *got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestSwapValues(t *testing.T) {
+	tests := []struct {
+		name      string
+		a         int
+		b         int
+		expectedA int
+		expectedB int
+	}{
+		{name: "Swap 5 and 10", a: 5, b: 10, expectedA: 10, expectedB: 5},
+		{name: "Swap -3 and 7", a: -3, b: 7, expectedA: 7, expectedB: -3},
+		{name: "Swap 0 and 0", a: 0, b: 0, expectedA: 0, expectedB: 0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotA, gotB := SwapValues(tt.a, tt.b)
+			if gotA != tt.expectedA || gotB != tt.expectedB {
+				t.Errorf("got (%d, %d), want (%d, %d)", gotA, gotB, tt.expectedA, tt.expectedB)
+			}
+		})
+	}
+}
+
+func TestSwapPointers(t *testing.T) {
+	tests := []struct {
+		name      string
+		a         int
+		b         int
+		expectedA int
+		expectedB int
+	}{
+		{name: "Swap 5 and 10", a: 5, b: 10, expectedA: 10, expectedB: 5},
+		{name: "Swap -3 and 7", a: -3, b: 7, expectedA: 7, expectedB: -3},
+		{name: "Swap 0 and 0", a: 0, b: 0, expectedA: 0, expectedB: 0},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := tt.a
+			b := tt.b
+			SwapPointers(&a, &b)
+			if a != tt.expectedA || b != tt.expectedB {
+				t.Errorf("got (%d, %d), want (%d, %d)", a, b, tt.expectedA, tt.expectedB)
+			}
+		})
+	}
+}

@@ -127,6 +127,57 @@ func ExploreProcess() {
 		while the elements are stored in a contiguous block of memory pointing to the header. */
 }
 
+func DoubleValue(x int) int {
+	return x * 2
+	/*It wil not modify the original variable as primitives in GO are immutable and are passed by value
+	so a copy is made and sent to the function */
+}
+
+func DoublePointer(x *int) {
+	*x = *x * 2
+	/*It will modify the original variable as we are passing the address of the variable to the function
+	and dereferencing it to change its value */
+}
+
+func CreateOnStack() int {
+	y := 2008
+	return y
+	/* This variable stays on the stack */
+}
+
+func CreateOnHeap() *int {
+	x := new(int)
+	*x = 3008
+	return x
+	/* This variable is escapes to the heap */
+}
+
+func SwapValues(a, b int) (int, int) {
+	return b, a
+}
+
+func SwapPointers(a, b *int) {
+	*a, *b = *b, *a
+}
+
+func AnalyzeEscape() {
+	CreateOnStack()
+	CreateOnHeap()
+
+	/*
+		--> Variables captured by closures such as counters and accumulators escape to the heap because they must live beyond the function call.
+
+		-->new(int) escapes to the heap when a pointer is returned from the function CreateOnHeap.
+
+		--> Slices created with make or literals may escape to the heap when their backing array must outlive the function's scope or is returned.
+
+		--> Function literals escape to the heap when they capture variables from their scope.
+
+		--> Some return values which is (~r0) and string literals passed to fmt functions also escape to the heap.
+
+		--> Escaping to the heap means the compiler determined the value(s) must survive beyond the stack frame where it was created.*/
+}
+
 func main() {
 	ExploreProcess()
 }
