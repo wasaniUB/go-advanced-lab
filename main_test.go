@@ -186,3 +186,133 @@ func TestMakeAccumulator(t *testing.T) {
 		})
 	}
 }
+
+func TestApply(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     []int
+		operation func(int) int
+		expected  []int
+	}{
+		{name: "Square numbers", input: []int{1, 2, 3, 4, 100}, operation: func(x int) int { return x * x }, expected: []int{1, 4, 9, 16, 10000}},
+		{name: "Double numbers", input: []int{1, 2, 3, 2008, 2002}, operation: func(x int) int { return x * 2 }, expected: []int{2, 4, 6, 4016, 4004}},
+		{name: "Negate numbers", input: []int{1, -2, 3}, operation: func(x int) int { return -x }, expected: []int{-1, 2, -3}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			original := append([]int{}, tt.input...)
+			got := Apply(tt.input, tt.operation)
+
+			if len(got) != len(tt.expected) {
+				t.Fatalf("length mismatch: got %d, want %d", len(got), len(tt.expected))
+			}
+
+			for i := range got {
+				if got[i] != tt.expected[i] {
+					t.Errorf("index %d: got %d, want %d", i, got[i], tt.expected[i])
+				}
+			}
+
+			for i := range tt.input {
+				if tt.input[i] != original[i] {
+					t.Errorf("original slice was modified")
+				}
+			}
+		})
+	}
+}
+
+func TestFilter(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     []int
+		predicate func(int) bool
+		expected  []int
+	}{
+		{name: "Even numbers", input: []int{1, 2, 3, 4, 5, 6}, predicate: func(x int) bool { return x%2 == 0 }, expected: []int{2, 4, 6}},
+		{name: "Positive numbers", input: []int{-3, -1, 0, 2, 5}, predicate: func(x int) bool { return x > 0 }, expected: []int{2, 5}},
+		{name: "Numbers greater than 10", input: []int{5, 10, 15, 20}, predicate: func(x int) bool { return x > 10 }, expected: []int{15, 20}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Filter(tt.input, tt.predicate)
+
+			if len(got) != len(tt.expected) {
+				t.Errorf("length mismatch: got %d, want %d", len(got), len(tt.expected))
+			}
+
+			for i := range got {
+				if got[i] != tt.expected[i] {
+					t.Errorf("index %d: got %d, want %d", i, got[i], tt.expected[i])
+				}
+			}
+		})
+	}
+}
+
+func TestReduce(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     []int
+		initial   int
+		operation func(int, int) int
+		expected  int
+	}{
+		{name: "Sum", input: []int{1, 2, 3, 4}, initial: 0, operation: func(acc, curr int) int { return acc + curr }, expected: 10},
+		{name: "Product", input: []int{1, 2, 3, 4}, initial: 1, operation: func(acc, curr int) int { return acc * curr }, expected: 24},
+		{name: "Maximum", input: []int{3, 1, 4, 2}, initial: 0, operation: func(acc, curr int) int {
+			if curr > acc {
+				return curr
+			}
+			return acc
+		},
+			expected: 4,
+		},
+		{name: "Minimum", input: []int{3, 1, 4, 2}, initial: 100, operation: func(acc, curr int) int {
+			if curr < acc {
+				return curr
+			}
+			return acc
+		},
+			expected: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Reduce(tt.input, tt.initial, tt.operation)
+			if got != tt.expected {
+				t.Errorf("got %d, want %d", got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestCompose(t *testing.T) {
+	tests := []struct {
+		name     string
+		f        func(int) int
+		g        func(int) int
+		input    int
+		expected int
+	}{
+		{name: "Double then add two", f: func(x int) int { return x + 2 }, g: func(x int) int { return x * 2 }, input: 5, expected: 12},
+		{name: "Square then negate", f: func(x int) int { return -x }, g: func(x int) int { return x * x }, input: 4, expected: -16},
+		{name: "Add three then multiply by four", f: func(x int) int { return x * 4 }, g: func(x int) int { return x + 3 }, input: 2, expected: 20},
+		{name: "Identity functions", f: func(x int) int { return x }, g: func(x int) int { return x }, input: 10, expected: 10},
+		{name: "Cube then square", f: func(x int) int { return x * x }, g: func(x int) int { return x * x * x }, input: 2, expected: 64},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			composed := Compose(tt.f, tt.g)
+			got := composed(tt.input)
+
+			if got != tt.expected {
+				t.Errorf("got %d, want %d", got, tt.expected)
+			}
+		})
+	}
+}
