@@ -173,7 +173,7 @@ func AnalyzeEscape() {
 
 		--> Function literals escape to the heap when they capture variables from their scope.
 
-		--> Some return values which is (~r0) and string literals passed to fmt functions also escape to the heap.
+		--> Some return values which is ~r0 and string literals passed to fmt functions also escape to the heap.
 
 		--> Escaping to the heap means the compiler determined the value(s) must survive beyond the stack frame where it was created.*/
 }
