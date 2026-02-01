@@ -275,4 +275,6 @@ func main() {
 
 	fmt.Println()
 
+	fmt.Println("=== Escape Analysis Demonstration ===")
+	AnalyzeEscape()
 }
